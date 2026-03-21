@@ -1,0 +1,8 @@
+{
+  "name": "claude-ios-swift-style",
+  "description": "iOS Swift code standards and templates for Claude Code — file naming, logging, BNet networking, HandyJSON, SnapKit layout, color conventions, MVVM templates.",
+  "author": {
+    "name": "xuqinqiang",
+    "email": "qinqiang.xu@jaco.live"
+  }
+}
