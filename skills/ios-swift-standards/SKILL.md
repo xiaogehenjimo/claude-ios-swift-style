@@ -57,14 +57,17 @@ Logger_w(.common, "非预期状态")
 
 ### 2.2 调试日志（仅 Debug/Profile 生效，Release 自动关闭）
 ```swift
-// 用 JacoSafeDebug 包裹，Release 下是 no-op
+// 单行调试日志优先使用，Release 下是 no-op
+JacoSafeDebugLog("调试信息")
+
+// 多行代码情况下用 JacoSafeDebug 包裹
 JacoSafeDebug {
     debugPrint("调试信息：\(someValue)")
 }
 ```
 
 ### 规则
-- **不要**在正式代码中裸用 `print()`，统一使用 `Logger_i` / `JacoSafeDebug`
+- **不要**在正式代码中裸用 `print()`，统一使用 `Logger_i` / `JacoSafeDebug` / `JacoSafeDebugLog` 
 - 日志 category 选最匹配的：`.common` / `.home` / `.network` / `.live` / `.homeStream`
 - 关键路径必须打 `Logger_i`，调试辅助信息用 `JacoSafeDebug`
 
@@ -79,8 +82,6 @@ import BNet
 enum JacoXxxNetwork {
     /// 获取列表
     case list(params: [String: Any])
-    /// 详情
-    case detail(id: String)
     /// 提交
     case submit(params: [String: Any])
 }
@@ -94,7 +95,6 @@ extension JacoXxxNetwork: NetworkAPI {
     var path: APIPath {
         switch self {
         case .list:    return "/bff/1/xxx/list.json"
-        case .detail:  return "/bff/1/xxx/detail.json"
         case .submit:  return "/bff/1/xxx/submit.json"
         }
     }
@@ -102,7 +102,6 @@ extension JacoXxxNetwork: NetworkAPI {
     var method: APIMethod {
         switch self {
         case .list:    return .get
-        case .detail:  return .get
         case .submit:  return .post
         }
     }
@@ -110,7 +109,6 @@ extension JacoXxxNetwork: NetworkAPI {
     var parameters: APIParameters? {
         switch self {
         case .list(let params):   return params
-        case .detail(let id):     return ["id": id]
         case .submit(let params): return params
         }
     }
@@ -152,19 +150,13 @@ JacoXxxNetwork.detail(id: "123").HTTPRequest(plugins: [NetworkLoadingPlugin()]) 
 ### 4.1 Model 定义
 ```swift
 // 继承 HandyJSONModel（或项目中的 BaseModel）
-class JacoUserModel: HandyJSONModel {
+class JacoUserModel: BaseObjcModel {
     var uid: String = ""
     var name: String = ""
     var avatar: String = ""
     var level: Int = 0
     var list: [JacoItemModel] = []
 
-    required init() {}
-}
-
-class JacoItemModel: HandyJSONModel {
-    var id: String = ""
-    var title: String = ""
     required init() {}
 }
 ```
@@ -204,7 +196,7 @@ let jsonString = model.toJSONString()
 ### 规则
 - Model 文件命名：`JacoXxxModel.swift`
 - 属性必须给默认值（避免解析失败时 nil 崩溃）
-- 嵌套 Model 同样继承 `HandyJSONModel`
+- 嵌套 Model 同样继承 `BaseObjcModel`
 
 ---
 
@@ -311,31 +303,6 @@ private lazy var confirmBtn: UIButton = {
     return btn
 }()
 
-// UIImageView
-private lazy var avatarImageView: UIImageView = {
-    let iv = UIImageView()
-    iv.contentMode = .scaleAspectFill
-    iv.clipsToBounds = true
-    iv.layer.cornerRadius = 20
-    return iv
-}()
-
-// UIView 容器
-private lazy var containerView: UIView = {
-    let view = UIView()
-    view.theme_backgroundColor = ColorTheme.colorFFF_181818
-    view.layer.cornerRadius = 12
-    return view
-}()
-
-// UIStackView
-private lazy var buttonStack: UIStackView = {
-    let stack = UIStackView()
-    stack.axis = .horizontal
-    stack.distribution = .fillEqually
-    stack.spacing = 16
-    return stack
-}()
 ```
 
 ### 规则
