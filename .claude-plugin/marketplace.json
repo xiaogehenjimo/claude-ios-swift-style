@@ -1,0 +1,15 @@
+{
+  "name": "claude-ios-swift-style",
+  "owner": {
+    "name": "xuqinqiang",
+    "url": "https://github.com/xiaogehenjimo"
+  },
+  "plugins": [
+    {
+      "name": "ios-swift-standards",
+      "source": "./",
+      "description": "iOS Swift code standards and templates — file naming, logging, BNet networking, HandyJSON, SnapKit layout, UIColor.hex, MVVM templates.",
+      "version": "1.0.0"
+    }
+  ]
+}
