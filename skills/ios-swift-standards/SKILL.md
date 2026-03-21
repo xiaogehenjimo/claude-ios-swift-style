@@ -69,7 +69,7 @@ JacoSafeDebug {
 ### 规则
 - **不要**在正式代码中裸用 `print()`，统一使用 `Logger_i` / `JacoSafeDebug` / `JacoSafeDebugLog` 
 - 日志 category 选最匹配的：`.common` / `.home` / `.network` / `.live` / `.homeStream`
-- 关键路径必须打 `Logger_i`，调试辅助信息用 `JacoSafeDebug`
+- 关键路径必须打 `Logger_i`，调试辅助信息用 `JacoSafeDebug` / `JacoSafeDebugLog` 
 
 ---
 
