@@ -4,7 +4,7 @@ description: |
   iOS Swift 代码规范与模板。当用户要求编写 Swift 代码、创建新文件、实现功能模块、网络请求、UI 布局、数据解析时触发。
   包含：文件命名/头注释规范、日志打印、网络请求(BNet)、JSON解析(HandyJSON)、布局约束(SnapKit)、颜色使用、视图模板、MVVM架构模板。
   Trigger when: writing Swift code, creating Swift files, implementing iOS features, or when user says /ios-std or /swift-std
-version: 1.0.0
+version: 1.0.1
 user-invocable: true
 allowed-tools: "Read, Write, Edit, Bash, Glob, Grep"
 ---
