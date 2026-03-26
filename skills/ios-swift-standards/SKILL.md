@@ -549,6 +549,9 @@ JacoKVM.someKey = value
 let value = JacoKVM.someKey
 ```
 
+### 语法技巧
+不要使用强制解包
+
 ### 代码组织
 - `// MARK: - Lifecycle` / `// MARK: - Setup` / `// MARK: - Actions` 分组
 - 大文件拆 extension：`JacoXxxViewController+Delegate.swift`
