@@ -549,6 +549,12 @@ JacoKVM.someKey = value
 let value = JacoKVM.someKey
 ```
 
+### 数组取值
+```swift
+let list: [String] = ["xiaohong", "xiaoming"]
+let name = list[safe: 0]
+```
+
 ### 语法技巧
 不要使用强制解包
 
