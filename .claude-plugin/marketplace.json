@@ -9,7 +9,7 @@
       "name": "ios-swift-standards",
       "source": "./",
       "description": "iOS Swift code standards and templates — file naming, logging, BNet networking, HandyJSON, SnapKit layout, UIColor.hex, MVVM templates.",
-      "version": "1.0.2"
+      "version": "1.0.3"
     }
   ]
 }

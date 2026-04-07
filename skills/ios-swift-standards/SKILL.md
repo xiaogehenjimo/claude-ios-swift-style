@@ -82,6 +82,8 @@ import BNet
 enum JacoXxxNetwork {
     /// 获取列表
     case list(params: [String: Any])
+    /// 详情
+    case detail(id: String)
     /// 提交
     case submit(params: [String: Any])
 }
@@ -95,6 +97,7 @@ extension JacoXxxNetwork: NetworkAPI {
     var path: APIPath {
         switch self {
         case .list:    return "/bff/1/xxx/list.json"
+        case .detail:  return "/bff/1/xxx/detail.json"
         case .submit:  return "/bff/1/xxx/submit.json"
         }
     }
@@ -102,6 +105,7 @@ extension JacoXxxNetwork: NetworkAPI {
     var method: APIMethod {
         switch self {
         case .list:    return .get
+        case .detail:  return .get
         case .submit:  return .post
         }
     }
@@ -109,6 +113,7 @@ extension JacoXxxNetwork: NetworkAPI {
     var parameters: APIParameters? {
         switch self {
         case .list(let params):   return params
+        case .detail(let id):     return ["id": id]
         case .submit(let params): return params
         }
     }
@@ -164,7 +169,9 @@ class JacoUserModel: BaseObjcModel {
 ### 4.2 反序列化
 ```swift
 // 从字典
-if let model = JacoUserModel.deserialize(from: jsonDict) { }
+if let model = JacoUserModel.deserialize(from: jsonDict) {
+    // 使用 model
+}
 
 // 从 JSON 字符串
 if let model = JacoUserModel.deserialize(from: jsonString) { }
@@ -180,6 +187,7 @@ JacoXxxNetwork.list(params: [:]).HTTPRequest { json in
        let model = JacoUserModel.deserialize(from: data) {
         self.model = model
     }
+    // 或者 list
     if let array = json?["list"] as? [[String: Any]],
        let list = [JacoItemModel].deserialize(from: array) {
         self.dataList = list.compactMap { $0 }
@@ -189,7 +197,10 @@ JacoXxxNetwork.list(params: [:]).HTTPRequest { json in
 
 ### 4.3 序列化
 ```swift
+// 序列化为字典
 let dict = model.toJSON()
+
+// 序列化为 JSON 字符串
 let jsonString = model.toJSONString()
 ```
 
@@ -204,8 +215,10 @@ let jsonString = model.toJSONString()
 
 ### 5.1 基础用法
 ```swift
+// 添加子视图后再设约束
 view.addSubview(titleLabel)
 view.addSubview(imageView)
+view.addSubview(btnContainer)
 
 titleLabel.snp.makeConstraints {
     $0.top.equalToSuperview().offset(16)
@@ -221,7 +234,7 @@ imageView.snp.makeConstraints {
 
 ### 5.2 更新 / 重置约束
 ```swift
-// 更新已存在的约束
+// 更新已存在的约束（不能改 relation/attribute）
 titleLabel.snp.updateConstraints {
     $0.top.equalToSuperview().offset(isExpanded ? 24 : 16)
 }
@@ -235,16 +248,23 @@ imageView.snp.remakeConstraints {
 
 ### 5.3 相对布局
 ```swift
+// 相对于某个视图
 $0.top.equalTo(headerView.snp.bottom).offset(8)
 $0.leading.equalTo(iconView.snp.trailing).offset(12)
+
+// 等宽/等高
+$0.width.equalTo(otherView)
 $0.width.equalTo(otherView).multipliedBy(0.5)
+
+// 优先级
 $0.width.lessThanOrEqualTo(200).priority(.high)
 ```
 
 ### 规则
 - 优先使用 `$0` 简写（项目主流风格）
+- `make` 写法也可，保持文件内一致即可
 - 不要混用 AutoresizingMask 和 SnapKit
-- `addSubview` 和约束统一写在 `configUI()` 函数中
+- 设约束前确保 `translatesAutoresizingMaskIntoConstraints` 已被 SnapKit 自动设为 false
 
 ---
 
@@ -253,35 +273,40 @@ $0.width.lessThanOrEqualTo(200).priority(.high)
 ### 6.1 动态主题色（推荐）
 ```swift
 // 跟随深/浅色主题自动切换（SwiftTheme）
-view.theme_backgroundColor = ColorTheme.colorFFF_181818
+view.theme_backgroundColor = ColorTheme.colorFFF_181818   // 白天白/夜间深色
 label.theme_textColor = ColorTheme.color333333
 btn.layer.theme_borderColor = ColorTheme.cgColor_bw_10
 ```
 
 ### 6.2 固定颜色 hex
 ```swift
+// 固定不跟主题变化的颜色
 UIColor.hex("8710FF")
 UIColor.hex("515151").withAlphaComponent(0.5)
-UIColor.hex("#FFFFFF")
+UIColor.hex("#FFFFFF")  // 带 # 也可以
 ```
 
 ### 6.3 业务语义色
 ```swift
-LiveRoomColor.color_8710FF      // 主题紫
-LiveRoomColor.color_000000_40   // 半透明黑
-ColorLight.color333             // 仅浅色
-ColorDark.color000              // 仅深色
+// 直播间颜色
+LiveRoomColor.color_8710FF   // 主题紫
+LiveRoomColor.color_000000_40 // 半透明黑
+
+// 明/暗
+ColorLight.color333   // 仅浅色
+ColorDark.color000    // 仅深色
 ```
 
 ### 规则
 - 跟主题切换的用 `ColorTheme.xxx`（theme_ 系列属性）
-- 固定颜色用 `UIColor.hex("xxxxxx")`，不用 `UIColor(red:green:blue:alpha:)`
-- 业务语义色优先从 `ColorTheme` / `LiveRoomColor` 取
+- 固定颜色用 `UIColor.hex("xxxxxx")`，不要用 `UIColor(red:green:blue:alpha:)` 写死
+- 业务语义色优先从 `ColorTheme` / `LiveRoomColor` 取，避免散落的 hex 字面量
 
 ---
 
-## 七、视图定义规范（lazy 属性）
+## 七、视图定义规范
 
+### 7.1 lazy 属性模板
 ```swift
 // UILabel
 private lazy var titleLabel: UILabel = {
@@ -300,6 +325,7 @@ private lazy var confirmBtn: UIButton = {
     btn.layer.cornerRadius = 8
     btn.titleLabel?.font = .ubuntu(16, weight: .bold)
     btn.theme_setTitleColor(ColorTheme.colorFFF_FFF, forState: .normal)
+    btn.setTitle("确认", for: .normal)
     return btn
 }()
 
@@ -308,6 +334,7 @@ private lazy var confirmBtn: UIButton = {
 ### 规则
 - 所有子视图用 `private lazy var`
 - 控件初始化逻辑写在闭包内，不要散落在 `viewDidLoad`
+- `addSubview` 和 `snp.makeConstraints` 集中在 `configUI()` 函数中
 
 ---
 
@@ -449,6 +476,7 @@ class JacoXxxCell: UITableViewCell {
 
     static let reuseId = "JacoXxxCell"
 
+    // MARK: - UI
     private lazy var avatarImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -464,6 +492,7 @@ class JacoXxxCell: UITableViewCell {
         return label
     }()
 
+    // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
@@ -472,6 +501,7 @@ class JacoXxxCell: UITableViewCell {
 
     required init?(coder: NSCoder) { fatalError() }
 
+    // MARK: - Layout
     private func configUI() {
         contentView.addSubview(avatarImageView)
         contentView.addSubview(titleLabel)
@@ -488,6 +518,7 @@ class JacoXxxCell: UITableViewCell {
         }
     }
 
+    // MARK: - Configure
     func configure(with model: JacoXxxModel) {
         titleLabel.text = model.name
         avatarImageView.kf.setImage(with: URL(string: model.avatar))
@@ -500,7 +531,7 @@ class JacoXxxCell: UITableViewCell {
 ## 十一、线程使用规范
 
 ```swift
-// Jaco 封装
+// 切换到全局队列（子线程）
 JacoThread.runOnGlobalQueue {
     // 后台处理
     JacoThread.runOnMain {
@@ -508,43 +539,51 @@ JacoThread.runOnGlobalQueue {
     }
 }
 
-// 标准 GCD
+// 标准 GCD（也可用）
 DispatchQueue.global().async {
-    DispatchQueue.main.async { }
+    DispatchQueue.main.async {
+        // UI 更新
+    }
 }
 ```
 
 ### 规则
 - UI 操作必须在主线程
+- 网络请求用 `HTTPRequest`（主线程回调）或 `HTTPRequestInChildThread`（子线程回调）
 - 避免 `DispatchQueue.main.sync`（死锁风险）
 
 ---
 
 ## 十二、其他注意事项
 
-### 弱引用
+### 12.1 弱引用
 ```swift
+// 闭包内必须捕获 weak self，避免循环引用
 someTask { [weak self] result in
     guard let self else { return }
     self.updateUI()
 }
 ```
 
-### 非空判断
+### 12.2 安全访问
 ```swift
+// 非空判断用 isNonEmpty（项目扩展）
 if someString.isNonEmpty { }
 if someArray.isNonEmpty { }
 ```
 
-### 图片加载
+### 12.3 图片加载（Kingfisher）
 ```swift
-// Swift → Kingfisher
+// Swift 代码用 Kingfisher
 imageView.kf.setImage(with: URL(string: urlString))
-// OC → SDWebImage
+imageView.kf.setImage(with: URL(string: urlString), placeholder: UIImage(named: "placeholder"))
+
+// OC 代码用 SDWebImage
 ```
 
-### MMKV 持久化
+### 12.4 MMKV 持久化
 ```swift
+// 读写用 JacoKVM（项目封装）
 JacoKVM.someKey = value
 let value = JacoKVM.someKey
 ```
@@ -557,18 +596,17 @@ let name = list[safe: 0]
 
 ### 语法技巧
 不要使用强制解包
-
-### 代码组织
+### 12.5 代码组织
 - `// MARK: - Lifecycle` / `// MARK: - Setup` / `// MARK: - Actions` 分组
-- 大文件拆 extension：`JacoXxxViewController+Delegate.swift`
+- 大文件拆 extension 到单独文件：`JacoXxxViewController+Delegate.swift`
 - 一个文件只包含一个主要类型
 
 ---
 
-## 扩展指南
+## 快速扩展指南
 
-克隆本 repo 后在 `skills/ios-swift-standards/` 下可新增：
-- `templates/` — 更多代码片段
-- `patterns/` — 特定业务模式（直播、支付、RTC等）
+在 `~/.claude/skills/ios-swift-standards/` 目录下可添加：
+- `templates/` — 更多代码模板
+- `patterns/` — 特定业务模式（直播、支付等）
 
-修改 `SKILL.md` 后提交到 GitHub，其他机器 `/update-plugins` 即可同步。
+修改本文件（`SKILL.md`）即可扩展规范，所有项目立即生效。
