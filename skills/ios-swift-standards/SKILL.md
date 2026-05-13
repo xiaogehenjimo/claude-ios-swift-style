@@ -46,14 +46,20 @@ allowed-tools: "Read, Write, Edit, Bash, Glob, Grep"
 
 | 主题 | 何时读取 | 文件 |
 |---|---|---|
+| 命名规范 | 取变量/类型/枚举/协议/方法名时 | `references/naming.md` |
+| 访问控制 | 标 `private` / `private(set)` / `final` / Pod 内 `public` 时 | `references/access-control.md` |
+| 常量与魔法值 | 写硬编码数字/字符串 / 拆 Const 时 | `references/constants.md` |
 | 日志打印 | 写 `Logger_i` / `JacoSafeDebug` / `print` 时 | `references/logging.md` |
 | 网络请求 | 写 `JacoXxxNetwork` / `HTTPRequest` 时 | `references/network.md` |
 | JSON 解析 | 写 Model / `deserialize` 时 | `references/json-parsing.md` |
+| 错误处理 | 定义 Error 枚举 / throws / Result / 错误传递时 | `references/error-handling.md` |
+| 协议 / Delegate | 定义协议 / weak delegate / closure vs delegate 选型 | `references/protocols-delegates.md` |
 | SnapKit 布局 | 写 `snp.makeConstraints` 时 | `references/snapkit-layout.md` |
 | 颜色使用 | 写 `UIColor` / `ColorTheme` 时 | `references/colors.md` |
 | 视图属性 | 写 `lazy var` 子视图时 | `references/view-styling.md` |
 | 线程切换 | 写 `DispatchQueue` / `JacoThread` 时 | `references/threading.md` |
-| 其他实践 | 弱引用 / 图片加载 / MMKV / 数组安全取值 / 代码组织 | `references/best-practices.md` |
+| **函数注释** | **写函数 / 添加参数 / 对外暴露方法时（强制）** | `references/function-comments.md` |
+| 其他实践 | 弱引用 / 图片加载 / MMKV / 数组安全取值 / 代码组织 / 禁用 assert | `references/best-practices.md` |
 
 ### templates/ — 代码模板
 
